@@ -1,0 +1,20 @@
+{
+    "name": "gitiki/code-highlight",
+    "authors": [
+        {
+            "name": "Francis Besset",
+            "email": "francis.besset@gmail.com"
+        }
+    ],
+    "require": {
+        "gitiki/gitiki": ">=1.0-dev"
+    },
+    "autoload": {
+        "psr-4": { "Gitiki\\CodeHighlight\\": "src/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
