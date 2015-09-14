@@ -41,7 +41,7 @@ class CodeHighLightListener implements EventSubscriberInterface
                 continue;
             }
 
-            $this->languages[] = substr(strstr($code->getAttribute('class'), '-'), 1);
+            $this->languages[substr(strstr($code->getAttribute('class'), '-'), 1)] = null;
         }
 
         if (!empty($this->languages)) {
@@ -67,8 +67,8 @@ class CodeHighLightListener implements EventSubscriberInterface
 
         // add css and js
         if (false !== $headPos && false !== $bodyPos) {
-            foreach ($this->languages as $i => $language) {
-                $this->languages[$i] = '<script src="'.$this->urlGenerator->generate('_highlight_language', [
+            foreach ($this->languages as $language => $v) {
+                $this->languages[$language] = '<script src="'.$this->urlGenerator->generate('_highlight_language', [
                     'language' => $language,
                     '_format' => 'js',
                 ]).'"></script>';
