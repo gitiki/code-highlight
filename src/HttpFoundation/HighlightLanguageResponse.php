@@ -2,8 +2,8 @@
 
 namespace Gitiki\CodeHighlight\HttpFoundation;
 
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse,
+    Symfony\Component\HttpFoundation\Request;
 
 class HighlightLanguageResponse extends BinaryFileResponse
 {

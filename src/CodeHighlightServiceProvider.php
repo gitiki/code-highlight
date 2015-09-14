@@ -2,8 +2,8 @@
 
 namespace Gitiki\CodeHighlight;
 
-use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Silex\Application,
+    Silex\ServiceProviderInterface;
 
 class CodeHighlightServiceProvider implements ServiceProviderInterface
 {

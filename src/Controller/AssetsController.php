@@ -3,7 +3,9 @@
 namespace Gitiki\CodeHighlight\Controller;
 
 use Silex\Application;
-use Symfony\Component\HttpFoundation\File\File;
+
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException,
+    Symfony\Component\HttpFoundation\File\File;
 
 class AssetsController
 {
@@ -31,7 +33,11 @@ class AssetsController
 
     protected function sendFile($file, $responseClass = null)
     {
-        $fileInfo = new File(__DIR__.'/../Resources/highlightjs/'.$file);
+        try {
+            $fileInfo = new File(__DIR__.'/../Resources/highlightjs/'.$file);
+        } catch (FileNotFoundException $e) {
+            $this->app->abort(404, 'The file "%s" does not exists');
+        }
 
         if (!$responseClass) {
             $response = $this->app->sendFile($fileInfo);
