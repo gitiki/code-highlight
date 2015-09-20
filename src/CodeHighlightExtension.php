@@ -2,19 +2,26 @@
 
 namespace Gitiki\CodeHighlight;
 
-use Silex\Application,
-    Silex\ServiceProviderInterface;
+use Gitiki\ExtensionInterface;
 
-class CodeHighlightServiceProvider implements ServiceProviderInterface
+use Silex\Application;
+
+class CodeHighlightExtension implements ExtensionInterface
 {
+    public static function getConfigurationKey()
+    {
+        return 'code_highlight';
+    }
+
     public function register(Application $app)
     {
-        $app['code_highlight'] = [
+        $configurationKey = static::getConfigurationKey();
+        $app[$configurationKey] = [
             'style' => 'tomorrow',
         ];
 
-        $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher, $app) {
-            $dispatcher->addSubscriber(new Event\Listener\CodeHighlightListener($app['url_generator'], $app['code_highlight']['style']));
+        $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher, $app) use ($configurationKey) {
+            $dispatcher->addSubscriber(new Event\Listener\CodeHighlightListener($app['url_generator'], $app[$configurationKey]['style']));
 
             return $dispatcher;
         }));
