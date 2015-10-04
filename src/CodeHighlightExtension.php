@@ -46,16 +46,18 @@ class CodeHighlightExtension implements ExtensionInterface
 
     protected function registerRouting(Gitiki $gitiki)
     {
-        $gitiki->get('/_highlight/highlight.{_format}', 'code_highlight.controller.assets:libraryAction')
+        $gitiki->get('/highlight.{_format}', 'code_highlight.controller.assets:libraryAction')
             ->assert('_format', 'js')
             ->bind('_highlight_library');
 
-        $gitiki->get('/_highlight/languages/{language}.{_format}', 'code_highlight.controller.assets:languageAction')
+        $gitiki->get('/languages/{language}.{_format}', 'code_highlight.controller.assets:languageAction')
             ->assert('_format', 'js')
             ->bind('_highlight_language');
 
-        $gitiki->get('/_highlight/styles/{style}.{_format}', 'code_highlight.controller.assets:styleAction')
+        $gitiki->get('/styles/{style}.{_format}', 'code_highlight.controller.assets:styleAction')
             ->assert('_format', 'css')
             ->bind('_highlight_style');
+
+        $gitiki->flush('_highlight');
     }
 }
