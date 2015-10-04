@@ -2,52 +2,59 @@
 
 namespace Gitiki\CodeHighlight;
 
-use Gitiki\ExtensionInterface;
+use Gitiki\ExtensionInterface,
+    Gitiki\Gitiki;
 
-use Silex\Application;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder,
+    Symfony\Component\Config\Definition\Processor;
 
 class CodeHighlightExtension implements ExtensionInterface
 {
-    public static function getConfigurationKey()
+    public function register(Gitiki $gitiki, array $config)
     {
-        return 'code_highlight';
-    }
+        $gitiki['code_highlight'] = $this->registerConfiguration($gitiki, $config);
 
-    public function register(Application $app)
-    {
-        $configurationKey = static::getConfigurationKey();
-        $app[$configurationKey] = [
-            'style' => 'tomorrow',
-        ];
-
-        $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher, $app) use ($configurationKey) {
-            $dispatcher->addSubscriber(new Event\Listener\CodeHighlightListener($app['url_generator'], $app[$configurationKey]['style']));
+        $gitiki['dispatcher'] = $gitiki->share($gitiki->extend('dispatcher', function ($dispatcher, $gitiki) {
+            $dispatcher->addSubscriber(new Event\Listener\CodeHighlightListener($gitiki['url_generator'], $gitiki['code_highlight']['style']));
 
             return $dispatcher;
         }));
 
-        $app['code_highlight.controller.assets'] = $app->share(function() use ($app) {
-            return new Controller\AssetsController($app);
+        $gitiki['code_highlight.controller.assets'] = $gitiki->share(function() use ($gitiki) {
+            return new Controller\AssetsController($gitiki);
         });
 
-        $this->registerRouting($app);
+        $this->registerRouting($gitiki);
     }
 
-    public function boot(Application $app)
+    public function boot(Gitiki $gitiki)
     {
     }
 
-    protected function registerRouting(Application $app)
+    protected function registerConfiguration(Gitiki $gitiki, array $config)
     {
-        $app->get('/_highlight/highlight.{_format}', 'code_highlight.controller.assets:libraryAction')
+        $treeBuilder = new TreeBuilder();
+
+        $treeBuilder->root('code_highlight')
+            ->children()
+                ->scalarNode('style')->cannotBeEmpty()->defaultValue('tomorrow')->end()
+            ->end()
+        ;
+
+        return (new Processor())->process($treeBuilder->buildTree(), [$config]);
+    }
+
+    protected function registerRouting(Gitiki $gitiki)
+    {
+        $gitiki->get('/_highlight/highlight.{_format}', 'code_highlight.controller.assets:libraryAction')
             ->assert('_format', 'js')
             ->bind('_highlight_library');
 
-        $app->get('/_highlight/languages/{language}.{_format}', 'code_highlight.controller.assets:languageAction')
+        $gitiki->get('/_highlight/languages/{language}.{_format}', 'code_highlight.controller.assets:languageAction')
             ->assert('_format', 'js')
             ->bind('_highlight_language');
 
-        $app->get('/_highlight/styles/{style}.{_format}', 'code_highlight.controller.assets:styleAction')
+        $gitiki->get('/_highlight/styles/{style}.{_format}', 'code_highlight.controller.assets:styleAction')
             ->assert('_format', 'css')
             ->bind('_highlight_style');
     }

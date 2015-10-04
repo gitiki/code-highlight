@@ -7,7 +7,8 @@
         }
     ],
     "require": {
-        "gitiki/gitiki": ">=1.0-dev"
+        "gitiki/gitiki": ">=1.0-dev",
+        "symfony/config": "~2.7"
     },
     "autoload": {
         "psr-4": { "Gitiki\\CodeHighlight\\": "src/" }
