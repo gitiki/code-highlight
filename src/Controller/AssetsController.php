@@ -2,6 +2,8 @@
 
 namespace Gitiki\CodeHighlight\Controller;
 
+use Gitiki\Gitiki;
+
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException,
@@ -9,43 +11,36 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException,
 
 class AssetsController
 {
-    protected $app;
-
-    public function __construct(Application $app)
+    public function libraryAction(Gitiki $gitiki)
     {
-        $this->app = $app;
+        return $this->sendFile($gitiki, 'highlight.js');
     }
 
-    public function libraryAction()
+    public function languageAction(Gitiki $gitiki, $language, $_format)
     {
-        return $this->sendFile('highlight.js');
+        return $this->sendFile($gitiki, 'languages/'.$language.'.'.$_format, 'Gitiki\CodeHighlight\HttpFoundation\HighlightLanguageResponse');
     }
 
-    public function languageAction($language, $_format)
+    public function styleAction(Gitiki $gitiki, $style, $_format)
     {
-        return $this->sendFile('languages/'.$language.'.'.$_format, 'Gitiki\CodeHighlight\HttpFoundation\HighlightLanguageResponse');
+        return $this->sendFile($gitiki, 'styles/'.$style.'.'.$_format);
     }
 
-    public function styleAction($style, $_format)
-    {
-        return $this->sendFile('styles/'.$style.'.'.$_format);
-    }
-
-    protected function sendFile($file, $responseClass = null)
+    protected function sendFile(Gitiki $gitiki, $file, $responseClass = null)
     {
         try {
             $fileInfo = new File(__DIR__.'/../Resources/highlightjs/'.$file);
         } catch (FileNotFoundException $e) {
-            $this->app->abort(404, 'The file "%s" does not exists');
+            $gitiki->abort(404, 'The file "%s" does not exists');
         }
 
         if (!$responseClass) {
-            $response = $this->app->sendFile($fileInfo);
+            $response = $gitiki->sendFile($fileInfo);
         } else {
             $response = new $responseClass($fileInfo);
         }
 
-        $request = $this->app['request'];
+        $request = $gitiki['request'];
         $response->headers->set('content-type', $request->getMimeType($fileInfo->getExtension()));
 
         $response
